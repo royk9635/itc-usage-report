@@ -52,25 +52,46 @@ The script creates a Blueprint linked to your GitHub repo (repo must already exi
 | `AUTH_DISABLED` | `true` |
 | `COOKIE_SECURE` | `true` |
 
-### Full app (login + admin)
+### Full app (login + admin) — Neon PostgreSQL
+
+**Option 1 — Automated (Neon API key)**
+
+1. Create an API key at [Neon Console → API Keys](https://console.neon.tech/app/settings/api-keys)
+2. Run:
+
+```bash
+export NEON_API_KEY=neon_api_...
+export RENDER_API_KEY=rnd_...
+node scripts/setup-neon-render.js
+```
+
+This creates the Neon project, runs migrations, creates a Super Admin, updates Render env vars, and redeploys.
+
+**Option 2 — Manual Neon connection string**
+
+1. Create a project at [Neon Console](https://console.neon.tech)
+2. Copy the **connection string** (use `usage_report` as database name, or `neondb`)
+3. Run:
+
+```bash
+export DATABASE_URL="postgresql://...@...neon.tech/usage_report?sslmode=require"
+export RENDER_API_KEY=rnd_...
+export SUPER_ADMIN_EMAIL=admin@example.com
+export SUPER_ADMIN_PASSWORD="YourStrongPassword10+"
+node scripts/setup-neon-render.js
+```
+
+**After integration**
 
 | Key | Value |
 |-----|--------|
-| `AUTH_DISABLED` | remove or set `false` |
-| `DATABASE_URL` | Neon connection string with `?sslmode=require` |
+| `AUTH_DISABLED` | `false` |
+| `DATABASE_URL` | Neon connection string |
 | `DATABASE_SSL` | `true` |
 | `COOKIE_SECURE` | `true` |
 | `PORTAL_PUBLIC_URL` | `https://YOUR-SERVICE.onrender.com/login` |
-| `GROQ_API_KEY` | `gsk_...` |
 
-Bootstrap Super Admin (run locally once):
-
-```bash
-export DATABASE_URL="postgresql://..."
-export DATABASE_SSL=true
-node scripts/setup-postgres.js
-node scripts/create-super-admin.js admin@example.com "YourStrongPassword10+"
-```
+Login at `/login` with the Super Admin credentials printed by the setup script.
 
 ## Free tier notes
 
