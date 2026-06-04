@@ -390,7 +390,8 @@ function buildRawDaily(agg, monthKey) {
   return { [monthKey]: { all, sites: siteOut, brands: brandOut } };
 }
 
-function buildEnhanced(agg, monthKey) {
+function buildEnhanced(agg, monthKey, options = {}) {
+  const compactRoomActivity = options.compactRoomActivity === true;
   const { sites, dates, period, meta } = agg;
   const siteArr = [...sites.values()].sort((a, b) => a.name.localeCompare(b.name));
   const usageDaily = {};
@@ -443,11 +444,36 @@ function buildEnhanced(agg, monthKey) {
     dthChannelDaily[site.id] = { channels, series };
 
     const data = {};
+    const summary = {};
     for (const [room, byDate] of site.roomData.entries()) {
+      if (compactRoomActivity) {
+        let events = 0;
+        let minutes = 0;
+        const categories = {};
+        for (const rows of byDate.values()) {
+          for (const row of rows) {
+            events += Number(row.n || 0);
+            minutes += Number(row.m || 0);
+            const cat = row.c || 'Other';
+            categories[cat] = (categories[cat] || 0) + Number(row.n || 0);
+          }
+        }
+        summary[room] = { events, minutes: round(minutes, 2), categories };
+        continue;
+      }
       data[room] = {};
       for (const [date, rows] of byDate.entries()) data[room][date] = rows;
     }
-    roomActivity[site.id] = { rooms: [...site.rooms].sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true })), data };
+    roomActivity[site.id] = compactRoomActivity
+      ? {
+          rooms: [...site.rooms].sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true })),
+          compact: true,
+          summary,
+        }
+      : {
+          rooms: [...site.rooms].sort((a, b) => String(a).localeCompare(String(b), undefined, { numeric: true })),
+          data,
+        };
 
     let totalMobile = 0;
     let occDays = 0;
