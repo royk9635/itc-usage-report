@@ -4,9 +4,9 @@
   "installCommand": "npm install",
   "functions": {
     "api/index.js": {
-      "maxDuration": 10,
+      "maxDuration": 60,
       "memory": 1024,
-      "includeFiles": "{index.html,public/**,db/**}"
+      "includeFiles": "{index.html,public/**,db/**,lib/**,scripts/raw-to-report/**,scripts/load-report-cli.js}"
     }
   },
   "rewrites": [
