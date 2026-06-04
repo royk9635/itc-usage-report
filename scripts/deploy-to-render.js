@@ -126,7 +126,6 @@ async function main() {
       plan: 'free',
       region,
       healthCheckPath: '/health',
-      maxShutdownDelaySeconds: 120,
       envSpecificDetails: {
         buildCommand: 'npm install',
         startCommand: 'node server.js',
