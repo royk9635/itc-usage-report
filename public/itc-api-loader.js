@@ -471,8 +471,16 @@
     }
   }
 
+  function isPrefetchEnabled() {
+    const flag = document.body?.dataset?.reportPrefetch;
+    if (flag === 'false') return false;
+    if (flag === 'true') return true;
+    const host = window.location.hostname;
+    return host === '127.0.0.1' || host === 'localhost';
+  }
+
   function startPrefetchPreviousMonths() {
-    if (dodEnabled || prefetchPromise) return;
+    if (!isPrefetchEnabled() || dodEnabled || prefetchPromise) return;
     prefetchPromise = prefetchPreviousMonths().finally(() => {
       prefetchPromise = null;
     });

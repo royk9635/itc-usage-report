@@ -107,6 +107,99 @@ function addTimeOfDay(day, seconds, sessions, timeValue, fallbackHour) {
   });
 }
 
+function mergeMetricRow(into, from) {
+  for (const k of [
+    'weekday_hr', 'weekend_hr', 'total_hr',
+    'weekday_events', 'weekend_events', 'total_events',
+    'weekday_sess', 'weekend_sess', 'total_sess',
+  ]) {
+    into[k] = (into[k] || 0) + (from[k] || 0);
+  }
+}
+
+function mergeNamedMaps(intoMap, fromMap) {
+  for (const [key, fromRow] of fromMap) {
+    if (!intoMap.has(key)) {
+      intoMap.set(key, { ...fromRow });
+      continue;
+    }
+    mergeMetricRow(intoMap.get(key), fromRow);
+  }
+}
+
+function mergeDay(into, from) {
+  into.guest_days += from.guest_days || 0;
+  into.available_room_days += from.available_room_days || 0;
+  into.ott_sec += from.ott_sec || 0;
+  into.dth_sec += from.dth_sec || 0;
+  into.casting_sec += from.casting_sec || 0;
+  into.ott_sess += from.ott_sess || 0;
+  into.dth_sess += from.dth_sess || 0;
+  into.casting_sess += from.casting_sess || 0;
+  into.smartler_events += from.smartler_events || 0;
+  into.mobile_events += from.mobile_events || 0;
+  mergeNamedMaps(into.ott_apps, from.ott_apps);
+  mergeNamedMaps(into.dth_channels, from.dth_channels);
+  mergeNamedMaps(into.casting_apps, from.casting_apps);
+  mergeNamedMaps(into.tv_modules, from.tv_modules);
+  mergeNamedMaps(into.cms_videos, from.cms_videos);
+  mergeNamedMaps(into.mobile_items, from.mobile_items);
+  mergeNamedMaps(into.smartler_components, from.smartler_components);
+  for (let i = 0; i < 4; i++) {
+    into.time_of_day.watch_sec[i] += from.time_of_day.watch_sec[i] || 0;
+    into.time_of_day.session_starts[i] += from.time_of_day.session_starts[i] || 0;
+  }
+}
+
+function mergeSite(into, from) {
+  for (const [date, day] of from.days) {
+    if (!into.days.has(date)) into.days.set(date, initDay());
+    mergeDay(into.days.get(date), day);
+  }
+  for (const room of from.rooms) into.rooms.add(room);
+  for (const [room, byDate] of from.roomData) {
+    if (!into.roomData.has(room)) into.roomData.set(room, new Map());
+    const intoByDate = into.roomData.get(room);
+    for (const [date, rows] of byDate) {
+      if (!intoByDate.has(date)) intoByDate.set(date, []);
+      intoByDate.get(date).push(...rows);
+    }
+  }
+  for (const [name, byDate] of from.dthSeries) {
+    if (!into.dthSeries.has(name)) into.dthSeries.set(name, new Map());
+    const intoSeries = into.dthSeries.get(name);
+    for (const [date, pt] of byDate) {
+      if (!intoSeries.has(date)) {
+        intoSeries.set(date, { min: 0, hr: 0, sessions: 0 });
+      }
+      const intoPt = intoSeries.get(date);
+      intoPt.min += pt.min || 0;
+      intoPt.hr += pt.hr || 0;
+      intoPt.sessions += pt.sessions || 0;
+    }
+  }
+}
+
+function mergeAggregates(a, b) {
+  for (const [id, siteB] of b.sites) {
+    let siteA = a.sites.get(id);
+    if (!siteA) {
+      siteA = initSite(id, siteB.brand, siteB.name);
+      a.sites.set(id, siteA);
+    }
+    mergeSite(siteA, siteB);
+  }
+  const dateSet = new Set([...(a.dates || []), ...(b.dates || [])]);
+  a.dates = [...dateSet].sort();
+  a.meta = a.meta || { processed_rows: 0 };
+  b.meta = b.meta || { processed_rows: 0 };
+  a.meta.processed_rows = (a.meta.processed_rows || 0) + (b.meta.processed_rows || 0);
+  a.period = a.dates.length
+    ? { start: a.dates[0], end: a.dates[a.dates.length - 1] }
+    : { start: null, end: null };
+  return a;
+}
+
 function aggregateRawRows(rows) {
   const sites = new Map();
   const dates = new Set();
@@ -240,4 +333,4 @@ function aggregateRawRows(rows) {
   return { sites, dates: sortedDates, period, meta: { processed_rows } };
 }
 
-module.exports = { aggregateRawRows, initDay };
+module.exports = { aggregateRawRows, mergeAggregates, initDay };
