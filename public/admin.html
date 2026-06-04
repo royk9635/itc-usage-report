@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Access Management | ITC Analytics</title>
+  <style>
+    :root{--bg1:#061827;--bg2:#0A2B3D;--bg3:#123E55;--cyan:#6EEBFF;--teal:#2BC7D3;--text:#F5FAFF;--muted:#8FA9BD;--line:rgba(120,220,235,.25);--glass:rgba(255,255,255,.08)}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(145deg,var(--bg1),var(--bg2) 52%,var(--bg3));color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .wrap{max-width:1220px;margin:0 auto;padding:24px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}.brand{font-weight:900;font-size:22px;color:var(--cyan)}.sub{color:var(--muted);font-weight:700;margin-top:4px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}.card{border:1px solid var(--line);border-radius:20px;background:var(--glass);box-shadow:0 20px 55px rgba(0,0,0,.25),0 0 28px rgba(80,220,255,.16);backdrop-filter:blur(16px);padding:18px}
+    h2{margin:0 0 12px;font-size:18px;color:var(--cyan)} label{display:block;color:var(--muted);font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px}
+    input,select,textarea{width:100%;border:1px solid rgba(110,235,255,.48);border-radius:12px;background:rgba(6,24,39,.56);color:var(--text);padding:10px 12px;font-weight:800;outline:none} textarea{min-height:70px}
+    button{border:1px solid rgba(110,235,255,.58);border-radius:12px;background:rgba(38,220,230,.16);color:var(--text);padding:10px 14px;font-weight:900;cursor:pointer;box-shadow:0 0 18px rgba(80,220,255,.2)}button:hover{background:rgba(38,220,230,.24)}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}.row>*{flex:1}.msg{color:#bae6fd;font-weight:800;min-height:20px;margin-top:10px}.metricGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:12px 0}.metric{border:1px solid rgba(120,220,235,.18);border-radius:14px;padding:12px;background:rgba(6,24,39,.35)}.metric b{display:block;font-size:20px;color:var(--cyan)}.metric span{display:block;color:var(--muted);font-size:11px;font-weight:900;text-transform:uppercase;margin-top:4px}
+    table{width:100%;border-collapse:collapse;font-size:12px}th,td{padding:9px;border-bottom:1px solid rgba(120,220,235,.16);text-align:left;vertical-align:top}th{color:var(--muted);text-transform:uppercase;font-size:10px;letter-spacing:.05em}.danger{color:#fecaca}.hidden{display:none!important}.actions{display:flex;gap:8px;flex-wrap:wrap}.miniSelect{min-width:116px;padding:7px 8px;font-size:11px}.status{display:inline-block;border:1px solid rgba(110,235,255,.32);border-radius:999px;padding:4px 9px;font-weight:900}.status.off{border-color:rgba(254,202,202,.45);color:#fecaca}.userActions button{padding:7px 9px;font-size:11px}
+    a{color:var(--cyan);font-weight:900;text-decoration:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div><div class="brand">Access Management</div><div class="sub" id="who">Loading...</div></div>
+      <div class="actions"><a href="/index.html">Back to dashboard</a><button id="logoutBtn" type="button">Logout</button></div>
+    </div>
+    <div class="grid">
+      <section class="card">
+        <h2>Create User</h2>
+        <label>Email</label><input id="newEmail" type="email"/>
+        <div class="row"><div><label>Role</label><select id="newRole"><option value="SITE_USER">Site User</option><option value="ADMIN">Admin</option><option value="SUPER_ADMIN">Super Admin</option></select></div><div><label>Temporary password</label><input id="newPassword" type="password"/></div></div>
+        <label>Site codes, comma-separated</label><textarea id="newSites" placeholder="ALL or site IDs shown in report"></textarea>
+        <button id="createBtn" type="button">Create user</button><div class="msg" id="createMsg"></div>
+      </section>
+      <section class="card">
+        <h2>Users</h2>
+        <button id="refreshUsersBtn" type="button">Refresh users</button>
+        <div style="overflow:auto;margin-top:12px"><table><thead><tr><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead><tbody id="usersBody"></tbody></table></div>
+      </section>
+      <section class="card">
+        <h2>Sites</h2>
+        <button id="refreshSitesBtn" type="button">Refresh sites</button>
+        <div style="overflow:auto;margin-top:12px"><table><thead><tr><th>Code</th><th>Name</th><th>Brand</th></tr></thead><tbody id="sitesBody"></tbody></table></div>
+      </section>
+      <section class="card hidden" id="auditCard">
+        <h2>Super Admin Audits</h2>
+        <div class="row"><div><label>Start date</label><input id="auditStart" type="date"/></div><div><label>End date</label><input id="auditEnd" type="date"/></div><button id="loadAuditBtn" type="button">Load</button></div>
+        <h3>Overall Portal Usage</h3><div class="metricGrid" id="overallUsageCards"></div>
+        <h3>Per Person Day-on-Day Usage</h3><div style="overflow:auto"><table><thead><tr><th>Date</th><th>Email</th><th>Role</th><th>Actions</th><th>Key activity</th></tr></thead><tbody id="dailyActivityBody"></tbody></table></div>
+        <h3>Recent Important Activity</h3><div style="overflow:auto"><table><thead><tr><th>Time</th><th>Email</th><th>Action</th><th>Label</th></tr></thead><tbody id="activityAuditBody"></tbody></table></div>
+        <h3>Login Summary</h3><div style="overflow:auto"><table><thead><tr><th>Email</th><th>Role</th><th>Success count</th></tr></thead><tbody id="loginSummaryBody"></tbody></table></div>
+        <h3>Recent Login Attempts</h3><div style="overflow:auto"><table><thead><tr><th>Time</th><th>Email</th><th>Status</th><th>Reason</th></tr></thead><tbody id="loginAuditBody"></tbody></table></div>
+        <h3>Admin Activity</h3><div style="overflow:auto"><table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th></tr></thead><tbody id="adminAuditBody"></tbody></table></div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    let me = null;
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const isSuperAdmin = () => me?.role === 'SUPER_ADMIN';
+    async function api(url, options = {}) {
+      const res = await fetch(url, {...options, headers:{'Content-Type':'application/json', ...(options.headers||{})}});
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`);
+      return data;
+    }
+    function roleSelect(user) {
+      const roles = ['SITE_USER','ADMIN','SUPER_ADMIN'];
+      return `<select class="miniSelect" data-role-for="${user.id}" ${isSuperAdmin() ? '' : 'disabled'}>${roles.map(r=>`<option value="${r}" ${r===user.role?'selected':''}>${r}</option>`).join('')}</select>`;
+    }
+    function userActions(user) {
+      const canEditTarget = isSuperAdmin() || user.role !== 'SUPER_ADMIN';
+      const statusBtn = canEditTarget ? `<button data-active="${user.id}" data-next="${user.is_active ? 'false' : 'true'}" type="button">${user.is_active ? 'Disable' : 'Enable'}</button>` : '';
+      const roleBtn = isSuperAdmin() ? `<button data-save-role="${user.id}" type="button">Save role</button>` : '';
+      const resetBtn = canEditTarget ? `<button data-reset="${user.id}" type="button">Reset password</button>` : '';
+      const sitesBtn = canEditTarget ? `<button data-sites="${user.id}" type="button">Edit sites</button>` : '';
+      const deleteBtn = isSuperAdmin() ? `<button class="danger" data-delete="${user.id}" type="button">Delete permanently</button>` : '';
+      return `<div class="actions userActions">${statusBtn}${roleBtn}${resetBtn}${sitesBtn}${deleteBtn}</div>`;
+    }
+    async function loadUsers(){
+      const data=await api('/api/admin/users');
+      $('usersBody').innerHTML=data.users.map(u=>`<tr><td>${esc(u.email)}</td><td>${roleSelect(u)}</td><td><span class="status ${u.is_active?'':'off'}">${u.is_active?'Active':'Disabled'}</span></td><td>${userActions(u)}</td></tr>`).join('');
+      document.querySelectorAll('[data-active]').forEach(b=>b.onclick=()=>setUserActive(b.dataset.active,b.dataset.next==='true'));
+      document.querySelectorAll('[data-save-role]').forEach(b=>b.onclick=()=>saveRole(b.dataset.saveRole));
+      document.querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>resetPassword(b.dataset.reset));
+      document.querySelectorAll('[data-sites]').forEach(b=>b.onclick=()=>editSites(b.dataset.sites));
+      document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteUser(b.dataset.delete));
+    }
+    async function loadSites(){const data=await api('/api/admin/sites'); $('sitesBody').innerHTML=data.sites.map(s=>`<tr><td>${esc(s.site_code)}</td><td>${esc(s.site_name)}</td><td>${esc(s.brand||'')}</td></tr>`).join('');}
+    async function setUserActive(id,isActive){if(!confirm(`${isActive?'Enable':'Disable'} this user?`))return; await api('/api/admin/users/'+id,{method:'PATCH',body:JSON.stringify({isActive})}); await loadUsers();}
+    async function saveRole(id){const role=document.querySelector(`[data-role-for="${CSS.escape(id)}"]`)?.value; if(!role)return; if(!confirm(`Change role to ${role}?`))return; await api('/api/admin/users/'+id,{method:'PATCH',body:JSON.stringify({role})}); await loadUsers();}
+    async function resetPassword(id){const password=prompt('Enter new temporary password (minimum 10 characters)'); if(!password)return; await api('/api/admin/users/'+id,{method:'PATCH',body:JSON.stringify({password})}); alert('Password reset. Ask the user to change it after login.'); await loadUsers();}
+    async function editSites(id){const current=await api('/api/admin/users/'+id+'/sites'); const existing=(current.sites||[]).map(s=>s.site_code).join(', '); const input=prompt('Enter site codes, comma-separated. Use ALL for all sites.', existing); if(input===null)return; const siteCodes=input.split(',').map(s=>s.trim()).filter(Boolean); await api('/api/admin/users/'+id+'/sites',{method:'PUT',body:JSON.stringify({siteCodes})}); alert('Site access updated.');}
+    async function deleteUser(id){const ok=prompt('Permanent delete cannot be undone. Type DELETE to confirm.'); if(ok!=='DELETE')return; await api('/api/admin/users/'+id,{method:'DELETE'}); await loadUsers();}
+    async function createUser(){try{$('createMsg').textContent=''; const siteCodes=$('newSites').value.split(',').map(s=>s.trim()).filter(Boolean); const result=await api('/api/admin/users',{method:'POST',body:JSON.stringify({email:$('newEmail').value,role:$('newRole').value,password:$('newPassword').value,siteCodes})}); $('createMsg').textContent=result.welcomeEmail?.sent?'User created and email sent.':'User created. Email not sent: '+(result.welcomeEmail?.error||'SMTP not configured.'); await loadUsers();}catch(e){$('createMsg').textContent=e.message;}}
+    async function loadAudit(){const qs=new URLSearchParams({startDate:$('auditStart').value||'1970-01-01',endDate:$('auditEnd').value||'2999-12-31'}); const [sum,log,adm,overall,daily,activity]=await Promise.all([api('/api/super-admin/login-summary?'+qs),api('/api/super-admin/login-audit?'+qs),api('/api/super-admin/admin-audit?'+qs),api('/api/super-admin/activity-overall-summary?'+qs),api('/api/super-admin/activity-daily-summary?'+qs),api('/api/super-admin/activity-audit?'+qs)]); const t=overall.totals||{}; const cards=[['Active users',t.active_users],['Total actions',t.total_actions],['Logins',t.logins],['Report loads',t.report_loads],['Downloads',t.downloads],['Chat uses',t.chat_requests],['Admin actions',t.admin_actions]]; $('overallUsageCards').innerHTML=cards.map(c=>`<div class="metric"><b>${esc(c[1]??0)}</b><span>${esc(c[0])}</span></div>`).join(''); $('dailyActivityBody').innerHTML=daily.rows.map(r=>`<tr><td>${esc(r.activity_date)}</td><td>${esc(r.email)}</td><td>${esc(r.role_at_action||'')}</td><td>${esc(r.action_count)}</td><td>${esc(r.actions||'')}</td></tr>`).join(''); $('activityAuditBody').innerHTML=activity.rows.map(r=>`<tr><td>${esc(r.created_at)}</td><td>${esc(r.email)}</td><td>${esc(r.action)}</td><td>${esc(r.label||r.page||'')}</td></tr>`).join(''); $('loginSummaryBody').innerHTML=sum.rows.map(r=>`<tr><td>${esc(r.email)}</td><td>${esc(r.role_at_login||'')}</td><td>${r.login_count}</td></tr>`).join(''); $('loginAuditBody').innerHTML=log.rows.map(r=>`<tr><td>${esc(r.created_at)}</td><td>${esc(r.email)}</td><td>${esc(r.status)}</td><td>${esc(r.failure_reason||'')}</td></tr>`).join(''); $('adminAuditBody').innerHTML=adm.rows.map(r=>`<tr><td>${esc(r.created_at)}</td><td>${esc(r.actor_email||'')}</td><td>${esc(r.action)}</td><td>${esc(r.target_email||r.site_code||'')}</td></tr>`).join('');}
+    async function init(){try{const data=await api('/api/auth/me'); me=data.user; if(!['SUPER_ADMIN','ADMIN'].includes(me.role)){location.href='/index.html';return;} $('who').textContent=`${me.email} - ${me.role}`; if(me.role==='SUPER_ADMIN') $('auditCard').classList.remove('hidden'); await Promise.all([loadUsers(),loadSites()]);}catch(e){location.href='/login';}}
+    $('createBtn').onclick=createUser; $('refreshUsersBtn').onclick=loadUsers; $('refreshSitesBtn').onclick=loadSites; $('loadAuditBtn').onclick=loadAudit; $('logoutBtn').onclick=async()=>{await api('/api/auth/logout',{method:'POST',body:'{}'}).catch(()=>{}); location.href='/login';};
+    init();
+  </script>
+</body>
+</html>

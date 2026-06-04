@@ -1,0 +1,11 @@
+{
+  "name": "ITC Guest Behaviour Report",
+  "short_name": "ITC Report",
+  "description": "April 2026 guest usage analytics — summary, site compare, room chatbot",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7ed",
+  "theme_color": "#f59e0b",
+  "orientation": "any",
+  "icons": []
+}

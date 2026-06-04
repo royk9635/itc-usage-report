@@ -1,0 +1,27 @@
+{
+  "name": "itc-usage-report",
+  "version": "1.0.0",
+  "description": "ITC Guest Behaviour Report — interactive usage analytics web app",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "vercel-build": "node validate.js",
+    "fix-views": "node fix_compare_chat_views.js",
+    "validate": "node validate.js",
+    "sync-export": "node scripts/sync-app.js",
+    "finish": "node scripts/finish-all.js",
+    "build": "node scripts/finish-all.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "optionalDependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  },
+  "dependencies": {
+    "nodemailer": "^8.0.8",
+    "pg": "^8.21.0"
+  }
+}

@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.env
+.env.*
+app.py
+requirements.txt
+raw_report_*.json
+ITC_HL_usage_Report_april_user_friendly_detailed_chatbot.html
+*.md
+!docs/VERCEL.md
+compare_management_report_fn.js
+itc_platform.js
+itc_dashboard.js
+patch_itc_ui.js
+apply_chart_theme.js
+finish_patch.js

@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "framework": null,
+  "installCommand": "npm install",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 10,
+      "memory": 1024,
+      "includeFiles": "{index.html,public/**,db/**}"
+    }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
+  ]
+}

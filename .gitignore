@@ -1,0 +1,9 @@
+node_modules/
+.env
+.DS_Store
+*.log
+raw_report_*.json
+scripts/_daily-snippet.html
+
+.vercel
+supabase/.temp

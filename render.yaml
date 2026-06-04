@@ -1,0 +1,52 @@
+# Render Blueprint — ITC Guest Behaviour Report
+# Deploy: Render Dashboard → New → Blueprint → connect this GitHub repo
+# Or: RENDER_API_KEY=rnd_... node scripts/deploy-to-render.js
+
+services:
+  - type: web
+    name: itc-usage-report
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /health
+    maxShutdownDelaySeconds: 120
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: DATABASE_SSL
+        value: "true"
+      # Set to "false" once DATABASE_URL (Neon) is configured in the Render Dashboard.
+      - key: AUTH_DISABLED
+        value: "true"
+      - key: REPORT_CACHE_ENABLED
+        value: "true"
+      - key: REPORT_CACHE_MAX_ENTRIES
+        value: "12"
+      - key: REPORT_CACHE_TTL_PAST_MS
+        value: "864000000"
+      - key: SMARTLER_GROUP
+        value: itc
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: OPENAI_MODEL
+        value: llama-3.3-70b-versatile
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: PORTAL_PUBLIC_URL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_FROM
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false

@@ -1,0 +1,153 @@
+#reportLoadOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+#reportLoadOverlay.is-visible {
+  display: flex;
+}
+#reportLoadOverlay .loadCard {
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px 28px;
+  box-shadow: 0 20px 50px rgba(2, 6, 23, 0.2);
+  max-width: 360px;
+  text-align: center;
+}
+#reportLoadOverlay .loadTitle {
+  font-weight: 900;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+#reportLoadOverlay .loadMsg {
+  color: var(--muted, #64748b);
+  font-size: 13px;
+}
+#reportLoadOverlay .loadSpinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(148, 163, 184, 0.35);
+  border-top-color: var(--accent, #f59e0b);
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  animation: itcSpin 0.8s linear infinite;
+}
+@keyframes itcSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+#reportDataBanner {
+  display: none;
+  position: sticky;
+  top: 52px;
+  z-index: 45;
+  padding: 10px 18px;
+  font-size: 13px;
+  border-bottom: 1px solid transparent;
+}
+#reportDataBanner.is-visible {
+  display: block;
+}
+#reportDataBanner.is-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+#reportDataBanner.is-empty {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #92400e;
+}
+.report-data-state {
+  display: none;
+  margin: 0 0 20px;
+  padding: 40px 28px;
+  text-align: center;
+  border-radius: 18px;
+  border: 1px solid var(--line, #e2e8f0);
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+}
+.report-data-state.is-visible {
+  display: block;
+}
+.report-data-state.is-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+.report-data-state.is-empty {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+.report-data-state .rdsTitle {
+  font-weight: 900;
+  font-size: 18px;
+  margin: 0 0 10px;
+  color: var(--ink, #0f172a);
+}
+.report-data-state.is-error .rdsTitle {
+  color: #991b1b;
+}
+.report-data-state.is-empty .rdsTitle {
+  color: #92400e;
+}
+.report-data-state .rdsMsg {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted, #64748b);
+  max-width: 520px;
+  margin: 0 auto 18px;
+}
+.report-data-state.is-error .rdsMsg {
+  color: #b91c1c;
+}
+.report-data-state .rdsActions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.report-data-state .rdsHint {
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted, #64748b);
+}
+body[data-report-load="error"] #reportPageContent > :not(#reportDataState),
+body[data-report-load="empty"] #reportPageContent > :not(#reportDataState),
+body[data-report-load="loading"] #reportPageContent > :not(#reportDataState) {
+  display: none !important;
+}
+body[data-report-load="ok"] #reportDataState.report-data-state {
+  display: none !important;
+}
+.dodToggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dodToggleLabel input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent, #f59e0b);
+}
+#dodFilterDate,
+#dodFilterStartDate,
+#dodFilterEndDate {
+  min-width: 148px;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
