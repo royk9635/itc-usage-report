@@ -180,6 +180,30 @@ function mergeSite(into, from) {
   }
 }
 
+function compactRoomDayRows(rows) {
+  const byKey = new Map();
+  for (const r of rows) {
+    const key = `${r.c}|${r.s}|${r.i}`;
+    if (!byKey.has(key)) byKey.set(key, { c: r.c, i: r.i, s: r.s, n: 0, m: 0 });
+    const t = byKey.get(key);
+    t.n += Number(r.n || 0);
+    t.m += Number(r.m || 0);
+  }
+  return [...byKey.values()];
+}
+
+function compactSiteRoomData(site) {
+  for (const byDate of site.roomData.values()) {
+    for (const [date, rows] of byDate) {
+      byDate.set(date, compactRoomDayRows(rows));
+    }
+  }
+}
+
+function compactAggRoomData(agg) {
+  for (const site of agg.sites.values()) compactSiteRoomData(site);
+}
+
 function mergeAggregates(a, b) {
   for (const [id, siteB] of b.sites) {
     let siteA = a.sites.get(id);
@@ -333,4 +357,4 @@ function aggregateRawRows(rows) {
   return { sites, dates: sortedDates, period, meta: { processed_rows } };
 }
 
-module.exports = { aggregateRawRows, mergeAggregates, initDay };
+module.exports = { aggregateRawRows, mergeAggregates, compactAggRoomData, initDay };
